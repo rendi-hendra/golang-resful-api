@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Newfiber(config *viper.Viper) *fiber.App {
+func NewFiber(config *viper.Viper) *fiber.App {
 	var app = fiber.New(fiber.Config{
 		AppName:      config.GetString("app.name"),
 		ErrorHandler: NewErrorHandler(),
