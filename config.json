@@ -3,18 +3,18 @@
     "name": "golang-restful-api"
   },
   "web": {
-    "prefox": false,
+    "prefork": false,
     "port": 8080
   },
   "log": {
     "level": 6
   },
-  "databese": {
+  "database": {
     "username": "root",
     "password": "",
     "host": "localhost",
     "port": 3306,
-    "name": "golang-restful-api",
+    "name": "golang_restful_api",
     "pool": {
       "idle": 10,
       "max": 100,
