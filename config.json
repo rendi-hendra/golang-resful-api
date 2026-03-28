@@ -1,0 +1,24 @@
+{
+  "app": {
+    "name": "golang-restful-api"
+  },
+  "web": {
+    "prefox": false,
+    "port": 8080
+  },
+  "log": {
+    "level": 6
+  },
+  "databese": {
+    "username": "root",
+    "password": "",
+    "host": "localhost",
+    "port": 3306,
+    "name": "golang-restful-api",
+    "pool": {
+      "idle": 10,
+      "max": 100,
+      "lifetime": 300
+    }
+  }
+}
