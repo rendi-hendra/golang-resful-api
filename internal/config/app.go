@@ -3,6 +3,11 @@ package config
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rendi-hendra/resful-api/internal/delivery/http"
+	"github.com/rendi-hendra/resful-api/internal/delivery/http/route"
+	"github.com/rendi-hendra/resful-api/internal/repository"
+	"github.com/rendi-hendra/resful-api/internal/usecase"
+	"github.com/rendi-hendra/resful-api/internal/util"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -17,5 +22,22 @@ type BootstapConfig struct {
 }
 
 func Bootstrap(config *BootstapConfig) {
+	// setup repository
+	userRepository := repository.NewUserRepository(config.Log)
 
+	// token
+	tokenUtil := util.NewTokenUtil("token,rahasia")
+
+	// setup usecase
+	userUseCase := usecase.NewUserUseCase(config.DB, config.Log, config.Validate, userRepository, tokenUtil)
+
+	// setup controller
+	userController := http.NewUserController(userUseCase, config.Log)
+
+	routeConfig := route.RouteConfig{
+		App:            config.App,
+		UserController: userController,
+	}
+
+	routeConfig.Setup()
 }
