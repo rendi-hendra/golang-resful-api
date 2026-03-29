@@ -4,8 +4,8 @@ type UserResponse struct {
 	ID        string `json:"id,omitempty"`
 	Name      string `json:"name,omitempty"`
 	Token     string `json:"token,omitempty"`
-	CreatedAt string `json:"created_at,omitempty"`
-	UpdatedAt string `json:"updated_at,omitempty"`
+	CreatedAt int64  `json:"created_at,omitempty"`
+	UpdatedAt int64  `json:"updated_at,omitempty"`
 }
 
 type VerifyUserRequest struct {
