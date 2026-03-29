@@ -102,3 +102,35 @@ func (c *UserUseCase) Create(ctx context.Context, request *model.RegisterUserReq
 
 	return converter.UserToResponse(user), nil
 }
+
+func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest) (*model.UserResponse, error) {
+	tx := c.DB.WithContext(ctx).Begin()
+	defer tx.Rollback()
+
+	if err := c.Validate.Struct(request); err != nil {
+		c.Log.Warnf("Invalid request body : %+v", err)
+		return nil, fiber.ErrBadRequest
+	}
+
+	user := &entity.User{}
+	if err := c.UserRepository.FindById(tx, user, request.ID); err != nil {
+		c.Log.Warnf("Failed find user by id : %+v", err)
+		return nil, fiber.ErrNotFound
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
+		c.Log.Warnf("Invalid password : %+v", err)
+		return nil, fiber.ErrUnauthorized
+	}
+
+	token, err := c.TokenUtil.CreateToken(&model.Auth{ID: user.ID})
+	if err != nil {
+		c.Log.Warnf("Failed to create token : %+v", err)
+		return nil, fiber.ErrInternalServerError
+	}
+
+	return converter.UserToTokenResponse(&entity.User{
+		Token: token,
+	}), nil
+
+}
