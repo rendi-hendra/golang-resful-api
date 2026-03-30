@@ -4,6 +4,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rendi-hendra/resful-api/internal/delivery/http"
+	"github.com/rendi-hendra/resful-api/internal/delivery/http/middleware"
 	"github.com/rendi-hendra/resful-api/internal/delivery/http/route"
 	"github.com/rendi-hendra/resful-api/internal/repository"
 	"github.com/rendi-hendra/resful-api/internal/usecase"
@@ -34,9 +35,13 @@ func Bootstrap(config *BootstapConfig) {
 	// setup controller
 	userController := http.NewUserController(userUseCase, config.Log)
 
+	// setup middleware
+	authMiddleware := middleware.NewAuth(userUseCase)
+
 	routeConfig := route.RouteConfig{
 		App:            config.App,
 		UserController: userController,
+		AuthMiddleware: authMiddleware,
 	}
 
 	routeConfig.Setup()

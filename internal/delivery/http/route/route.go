@@ -18,3 +18,7 @@ func (c *RouteConfig) Setup() {
 func (c *RouteConfig) SetupGuestRoute() {
 	c.App.Post("/api/users", c.UserController.Register)
 }
+
+func (c *RouteConfig) SetupAuthRoute() {
+	c.App.Use(c.AuthMiddleware)
+}
