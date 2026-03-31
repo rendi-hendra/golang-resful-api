@@ -4,14 +4,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/rendi-hendra/resful-api/internal/model"
 	"github.com/rendi-hendra/resful-api/internal/usecase"
+	"github.com/rendi-hendra/resful-api/internal/util"
 )
 
-func NewAuth(userUseCase *usecase.UserUseCase) fiber.Handler {
+func NewAuth(userUseCase *usecase.UserUseCase, tokenUtil *util.TokenUtil) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		request := &model.VerifyUserRequest{Token: ctx.Get("Authorization", "NOT_FOUND")}
 		userUseCase.Log.Debugf("Authorization : %s", request.Token)
 
-		auth, err := userUseCase.Verify(ctx.UserContext(), request)
+		auth, err := tokenUtil.ParseToken(request.Token)
 		if err != nil {
 			userUseCase.Log.Warnf("Failed find user by token : %+v", err)
 			return fiber.ErrUnauthorized

@@ -9,7 +9,7 @@ type UserResponse struct {
 }
 
 type VerifyUserRequest struct {
-	Token string `validate:"required,max=100"`
+	Token string `validate:"required,max=255"`
 }
 
 type RegisterUserRequest struct {

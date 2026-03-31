@@ -19,7 +19,7 @@ func NewTokenUtil(secretKey string) *TokenUtil {
 }
 
 func (t TokenUtil) CreateToken(auth *model.Auth) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":     auth.ID,
 		"expire": time.Now().Add(time.Hour * 24 * 30).UnixMilli(),
 	})

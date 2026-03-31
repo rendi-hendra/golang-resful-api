@@ -27,7 +27,7 @@ func Bootstrap(config *BootstapConfig) {
 	userRepository := repository.NewUserRepository(config.Log)
 
 	// token
-	tokenUtil := util.NewTokenUtil("token,rahasia")
+	tokenUtil := util.NewTokenUtil("rahasia")
 
 	// setup usecase
 	userUseCase := usecase.NewUserUseCase(config.DB, config.Log, config.Validate, userRepository, tokenUtil)
@@ -36,7 +36,7 @@ func Bootstrap(config *BootstapConfig) {
 	userController := http.NewUserController(userUseCase, config.Log)
 
 	// setup middleware
-	authMiddleware := middleware.NewAuth(userUseCase)
+	authMiddleware := middleware.NewAuth(userUseCase, tokenUtil)
 
 	routeConfig := route.RouteConfig{
 		App:            config.App,

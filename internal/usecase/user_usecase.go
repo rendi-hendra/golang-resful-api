@@ -132,5 +132,27 @@ func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest
 	return converter.UserToTokenResponse(&entity.User{
 		Token: token,
 	}), nil
+}
 
+func (c *UserUseCase) Current(ctx context.Context, request *model.GetUserRequest) (*model.UserResponse, error) {
+	tx := c.DB.WithContext(ctx).Begin()
+	defer tx.Rollback()
+
+	if err := c.Validate.Struct(request); err != nil {
+		c.Log.Warnf("Invalid request body : %+v", err)
+		return nil, fiber.ErrBadRequest
+	}
+
+	user := &entity.User{}
+	if err := c.UserRepository.FindById(tx, user, request.ID); err != nil {
+		c.Log.Warnf("Failed find user by id : %+v", err)
+		return nil, fiber.ErrNotFound
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		c.Log.Warnf("Failed commit transaction : %+v", err)
+		return nil, fiber.ErrInternalServerError
+	}
+
+	return converter.UserToResponse(user), nil
 }
