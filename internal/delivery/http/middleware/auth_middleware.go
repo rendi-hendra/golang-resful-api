@@ -10,7 +10,7 @@ import (
 func NewAuth(userUseCase *usecase.UserUseCase, tokenUtil *util.TokenUtil) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		header := ctx.Get("Authorization")
-		token, err := extractToken(header)
+		token, err := ExtractToken(header)
 		if err != nil {
 			return fiber.ErrUnauthorized
 		}
@@ -29,7 +29,7 @@ func NewAuth(userUseCase *usecase.UserUseCase, tokenUtil *util.TokenUtil) fiber.
 	}
 }
 
-func extractToken(header string) (string, error) {
+func ExtractToken(header string) (string, error) {
 	if header == "" {
 		return "", fiber.ErrUnauthorized
 	}

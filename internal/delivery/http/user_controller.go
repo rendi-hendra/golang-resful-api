@@ -45,13 +45,31 @@ func (c *UserController) Login(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	resposnse, err := c.UseCase.Login(ctx.UserContext(), request)
+	response, err := c.UseCase.Login(ctx.UserContext(), request)
 	if err != nil {
 		c.Log.Warnf("Failed to login user : %+v", err)
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*model.UserResponse]{Data: resposnse})
+	return ctx.JSON(model.WebResponse[*model.TokenResponse]{Data: response})
+}
+
+func (c *UserController) RefreshToken(ctx *fiber.Ctx) error {
+	header := ctx.Get("Authorization")
+	token, err := middleware.ExtractToken(header)
+	if err != nil {
+		c.Log.Warnf("Invalid authorization header : %+v", err)
+		return fiber.ErrUnauthorized
+	}
+
+	request := &model.RefreshTokenRequest{Token: token}
+	response, err := c.UseCase.Refresh(ctx.UserContext(), request)
+	if err != nil {
+		c.Log.Warnf("Failed to refresh token : %+v", err)
+		return err
+	}
+
+	return ctx.JSON(model.WebResponse[*model.TokenResponse]{Data: response})
 }
 
 func (c *UserController) Current(ctx *fiber.Ctx) error {

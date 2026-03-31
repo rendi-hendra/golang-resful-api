@@ -1,12 +1,15 @@
 package model
 
 type UserResponse struct {
-	ID           string `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	Token        string `json:"token,omitempty"`
-	RefreshToken string `json:"refresh_token,omitempty"`
-	CreatedAt    int64  `json:"created_at,omitempty"`
-	UpdatedAt    int64  `json:"updated_at,omitempty"`
+	ID        string `json:"id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	CreatedAt int64  `json:"created_at,omitempty"`
+	UpdatedAt int64  `json:"updated_at,omitempty"`
+}
+
+type TokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type VerifyUserRequest struct {

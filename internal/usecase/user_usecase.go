@@ -102,7 +102,7 @@ func (c *UserUseCase) Create(ctx context.Context, request *model.RegisterUserReq
 	return converter.UserToResponse(user), nil
 }
 
-func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest) (*model.UserResponse, error) {
+func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest) (*model.TokenResponse, error) {
 	tx := c.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
@@ -145,40 +145,47 @@ func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest
 		return nil, fiber.ErrInternalServerError
 	}
 
-	return converter.UserToTokenResponse(&entity.User{
-		Token: refreshToken,
-	}, accessToken), nil
+	return &model.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
 
-func (c *UserUseCase) Refresh(ctx context.Context, request *model.RefreshTokenRequest) (*model.UserResponse, error) {
-	tx := c.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
+func (c *UserUseCase) Refresh(ctx context.Context, request *model.RefreshTokenRequest) (*model.TokenResponse, error) {
+	db := c.DB.WithContext(ctx)
 
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.Warnf("Invalid request body : %+v", err)
 		return nil, fiber.ErrBadRequest
 	}
 
-	user := &entity.User{}
+	auth, err := c.TokenUtil.ParseToken(request.Token, "refresh")
+	if err != nil {
+		c.Log.Warnf("Invalid refresh token : %+v", err)
+		return nil, fiber.ErrUnauthorized
+	}
 
-	if err := c.UserRepository.FindByToken(tx, user, request.Token); err != nil {
-		c.Log.Warnf("Failed find user by token : %+v", err)
+	user := &entity.User{}
+	if err := c.UserRepository.FindById(db, user, auth.ID); err != nil {
+		c.Log.Warnf("Failed find user by id : %+v", err)
 		return nil, fiber.ErrNotFound
+	}
+
+	if user.Token != request.Token {
+		c.Log.Warnf("Refresh token mismatch for user %s", auth.ID)
+		return nil, fiber.ErrUnauthorized
 	}
 
 	accessToken, err := c.TokenUtil.CreateAccessToken(&model.Auth{ID: user.ID})
 	if err != nil {
-		c.Log.Warnf("Failed to create token : %+v", err)
+		c.Log.Warnf("Failed to create access token : %+v", err)
 		return nil, fiber.ErrInternalServerError
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		c.Log.Warnf("Failed Commit transaction : %+v", err)
-		return nil, fiber.ErrInternalServerError
-	}
-
-	return converter.UserToTokenResponse(user, accessToken), nil
-
+	return &model.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: user.Token,
+	}, nil
 }
 
 func (c *UserUseCase) Current(ctx context.Context, request *model.GetUserRequest) (*model.UserResponse, error) {
