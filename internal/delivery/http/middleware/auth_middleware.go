@@ -9,10 +9,15 @@ import (
 
 func NewAuth(userUseCase *usecase.UserUseCase, tokenUtil *util.TokenUtil) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		request := &model.VerifyUserRequest{Token: ctx.Get("Authorization", "NOT_FOUND")}
-		userUseCase.Log.Debugf("Authorization : %s", request.Token)
+		header := ctx.Get("Authorization")
+		token, err := extractToken(header)
+		if err != nil {
+			return fiber.ErrUnauthorized
+		}
 
-		auth, err := tokenUtil.ParseToken(request.Token)
+		userUseCase.Log.Debugf("Authorization : %s", token)
+
+		auth, err := tokenUtil.ParseToken(token, "access")
 		if err != nil {
 			userUseCase.Log.Warnf("Failed find user by token : %+v", err)
 			return fiber.ErrUnauthorized
@@ -22,6 +27,19 @@ func NewAuth(userUseCase *usecase.UserUseCase, tokenUtil *util.TokenUtil) fiber.
 		ctx.Locals("auth", auth)
 		return ctx.Next()
 	}
+}
+
+func extractToken(header string) (string, error) {
+	if header == "" {
+		return "", fiber.ErrUnauthorized
+	}
+
+	const prefix = "Bearer "
+	if len(header) <= len(prefix) || header[:len(prefix)] != prefix {
+		return "", fiber.ErrUnauthorized
+	}
+
+	return header[len(prefix):], nil
 }
 
 func GetUser(ctx *fiber.Ctx) *model.Auth {

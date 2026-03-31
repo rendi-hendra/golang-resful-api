@@ -14,8 +14,9 @@ func UserToResponse(user *entity.User) *model.UserResponse {
 	}
 }
 
-func UserToTokenResponse(user *entity.User) *model.UserResponse {
+func UserToTokenResponse(user *entity.User, token string) *model.UserResponse {
 	return &model.UserResponse{
-		Token: user.Token,
+		Token:        token,
+		RefreshToken: user.Token,
 	}
 }

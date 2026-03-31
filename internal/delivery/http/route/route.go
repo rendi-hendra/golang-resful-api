@@ -24,4 +24,5 @@ func (c *RouteConfig) SetupGuestRoute() {
 func (c *RouteConfig) SetupAuthRoute() {
 	c.App.Use(c.AuthMiddleware)
 	c.App.Get("/api/users/_current", c.UserController.Current)
+	c.App.Patch("/api/users/_current", c.UserController.Update)
 }
