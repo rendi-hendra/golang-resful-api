@@ -21,15 +21,17 @@ type UserUseCase struct {
 	Validate       *validator.Validate
 	UserRepository *repository.UserRepository
 	TokenUtil      *util.TokenUtil
+	Mailer         *util.Mailer
 }
 
-func NewUserUseCase(db *gorm.DB, logger *logrus.Logger, validate *validator.Validate, userRepository *repository.UserRepository, tokenUtil *util.TokenUtil) *UserUseCase {
+func NewUserUseCase(db *gorm.DB, logger *logrus.Logger, validate *validator.Validate, userRepository *repository.UserRepository, tokenUtil *util.TokenUtil, mailer *util.Mailer) *UserUseCase {
 	return &UserUseCase{
 		DB:             db,
 		Log:            logger,
 		Validate:       validate,
 		UserRepository: userRepository,
 		TokenUtil:      tokenUtil,
+		Mailer:         mailer,
 	}
 }
 
@@ -87,6 +89,7 @@ func (c *UserUseCase) Create(ctx context.Context, request *model.RegisterUserReq
 		ID:       request.ID,
 		Password: string(password),
 		Name:     request.Name,
+		Email:    request.Email,
 	}
 
 	if err := c.UserRepository.Create(tx, user); err != nil {
@@ -144,6 +147,12 @@ func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest
 		c.Log.Warnf("Failed Commit transaction : %+v", err)
 		return nil, fiber.ErrInternalServerError
 	}
+
+	go func() {
+		if err := c.Mailer.SendLoginNotification(user.Email); err != nil {
+			c.Log.Warnf("Failed to send login notification to %s: %+v", user.Email, err)
+		}
+	}()
 
 	return &model.TokenResponse{
 		AccessToken:  accessToken,
@@ -236,6 +245,10 @@ func (c *UserUseCase) Update(ctx context.Context, request *model.UpdateUserReque
 			return nil, fiber.ErrInternalServerError
 		}
 		user.Password = string(password)
+	}
+
+	if request.Email != "" {
+		user.Email = request.Email
 	}
 
 	if err := c.UserRepository.Update(tx, user); err != nil {
