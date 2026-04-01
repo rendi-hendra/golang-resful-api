@@ -13,19 +13,20 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+
 )
 
-type UserUseCase struct {
+type UserUseCaseImpl struct {
 	DB             *gorm.DB
 	Log            *logrus.Logger
 	Validate       *validator.Validate
-	UserRepository *repository.UserRepository
-	TokenUtil      *util.TokenUtil
-	Mailer         *util.Mailer
+	UserRepository repository.UserRepository
+	TokenUtil      util.TokenManager
+	Mailer         util.Notifier
 }
 
-func NewUserUseCase(db *gorm.DB, logger *logrus.Logger, validate *validator.Validate, userRepository *repository.UserRepository, tokenUtil *util.TokenUtil, mailer *util.Mailer) *UserUseCase {
-	return &UserUseCase{
+func NewUserUseCase(db *gorm.DB, logger *logrus.Logger, validate *validator.Validate, userRepository repository.UserRepository, tokenUtil util.TokenManager, mailer util.Notifier) UserUseCase {
+	return &UserUseCaseImpl{
 		DB:             db,
 		Log:            logger,
 		Validate:       validate,
@@ -35,7 +36,7 @@ func NewUserUseCase(db *gorm.DB, logger *logrus.Logger, validate *validator.Vali
 	}
 }
 
-func (c *UserUseCase) Verify(ctx context.Context, request *model.VerifyUserRequest) (*model.Auth, error) {
+func (c *UserUseCaseImpl) Verify(ctx context.Context, request *model.VerifyUserRequest) (*model.Auth, error) {
 	tx := c.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
@@ -59,7 +60,7 @@ func (c *UserUseCase) Verify(ctx context.Context, request *model.VerifyUserReque
 	return &model.Auth{ID: user.ID}, nil
 }
 
-func (c *UserUseCase) Create(ctx context.Context, request *model.RegisterUserRequest) (*model.UserResponse, error) {
+func (c *UserUseCaseImpl) Create(ctx context.Context, request *model.RegisterUserRequest) (*model.UserResponse, error) {
 	tx := c.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
@@ -105,7 +106,7 @@ func (c *UserUseCase) Create(ctx context.Context, request *model.RegisterUserReq
 	return converter.UserToResponse(user), nil
 }
 
-func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest) (*model.TokenResponse, error) {
+func (c *UserUseCaseImpl) Login(ctx context.Context, request *model.LoginUserRequest) (*model.TokenResponse, error) {
 	tx := c.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
@@ -160,7 +161,7 @@ func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest
 	}, nil
 }
 
-func (c *UserUseCase) Refresh(ctx context.Context, request *model.RefreshTokenRequest) (*model.TokenResponse, error) {
+func (c *UserUseCaseImpl) Refresh(ctx context.Context, request *model.RefreshTokenRequest) (*model.TokenResponse, error) {
 	db := c.DB.WithContext(ctx)
 
 	if err := c.Validate.Struct(request); err != nil {
@@ -197,7 +198,7 @@ func (c *UserUseCase) Refresh(ctx context.Context, request *model.RefreshTokenRe
 	}, nil
 }
 
-func (c *UserUseCase) Current(ctx context.Context, request *model.GetUserRequest) (*model.UserResponse, error) {
+func (c *UserUseCaseImpl) Current(ctx context.Context, request *model.GetUserRequest) (*model.UserResponse, error) {
 	tx := c.DB.WithContext(ctx).Begin()
 	defer tx.Rollback()
 
@@ -220,7 +221,7 @@ func (c *UserUseCase) Current(ctx context.Context, request *model.GetUserRequest
 	return converter.UserToResponse(user), nil
 }
 
-func (c *UserUseCase) Update(ctx context.Context, request *model.UpdateUserRequest) (*model.UserResponse, error) {
+func (c *UserUseCaseImpl) Update(ctx context.Context, request *model.UpdateUserRequest) (*model.UserResponse, error) {
 	tx := c.DB.WithContext(ctx).Begin()
 
 	if err := c.Validate.Struct(request); err != nil {

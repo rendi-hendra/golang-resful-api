@@ -6,17 +6,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository struct {
+type UserRepositoryImpl struct {
 	Repository[entity.User]
 	log *logrus.Logger
 }
 
-func NewUserRepository(log *logrus.Logger) *UserRepository {
-	return &UserRepository{
+func NewUserRepository(log *logrus.Logger) UserRepository {
+	return &UserRepositoryImpl{
 		log: log,
 	}
 }
 
-func (r *UserRepository) FindByToken(db *gorm.DB, user *entity.User, token string) error {
+func (r *UserRepositoryImpl) FindByToken(db *gorm.DB, user *entity.User, token string) error {
 	return db.Where("token = ?", token).First(user).Error
 }

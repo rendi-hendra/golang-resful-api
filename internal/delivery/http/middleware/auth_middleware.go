@@ -3,11 +3,11 @@ package middleware
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/rendi-hendra/resful-api/internal/model"
-	"github.com/rendi-hendra/resful-api/internal/usecase"
 	"github.com/rendi-hendra/resful-api/internal/util"
+	"github.com/sirupsen/logrus"
 )
 
-func NewAuth(userUseCase *usecase.UserUseCase, tokenUtil *util.TokenUtil) fiber.Handler {
+func NewAuth(log *logrus.Logger, tokenUtil util.TokenManager) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		header := ctx.Get("Authorization")
 		token, err := ExtractToken(header)
@@ -15,15 +15,15 @@ func NewAuth(userUseCase *usecase.UserUseCase, tokenUtil *util.TokenUtil) fiber.
 			return fiber.ErrUnauthorized
 		}
 
-		userUseCase.Log.Debugf("Authorization : %s", token)
+		log.Debugf("Authorization : %s", token)
 
 		auth, err := tokenUtil.ParseToken(token, "access")
 		if err != nil {
-			userUseCase.Log.Warnf("Failed find user by token : %+v", err)
+			log.Warnf("Failed find user by token : %+v", err)
 			return fiber.ErrUnauthorized
 		}
 
-		userUseCase.Log.Debugf("User : %+v", auth.ID)
+		log.Debugf("User : %+v", auth.ID)
 		ctx.Locals("auth", auth)
 		return ctx.Next()
 	}
