@@ -5,8 +5,11 @@ import (
 	"gorm.io/gorm"
 )
 
-// IUserRepository defines the contract for all User data access operations.
-type IUserRepository interface {
+// UserRepository defines the contract for all User data access operations.
+// NOTE: *gorm.DB parameter is a known tech debt — ideally the interface
+// should not expose infrastructure details. Consider a Unit of Work pattern
+// in a future refactor.
+type UserRepository interface {
 	Create(db *gorm.DB, user *entity.User) error
 	Update(db *gorm.DB, user *entity.User) error
 	Delete(db *gorm.DB, user *entity.User) error

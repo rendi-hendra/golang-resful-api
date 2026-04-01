@@ -6,8 +6,8 @@ import (
 	"github.com/rendi-hendra/resful-api/internal/model"
 )
 
-// IUserUseCase defines the contract for all User business logic operations.
-type IUserUseCase interface {
+// UserUseCase defines the contract for all User business logic operations.
+type UserUseCase interface {
 	Verify(ctx context.Context, request *model.VerifyUserRequest) (*model.Auth, error)
 	Create(ctx context.Context, request *model.RegisterUserRequest) (*model.UserResponse, error)
 	Login(ctx context.Context, request *model.LoginUserRequest) (*model.TokenResponse, error)

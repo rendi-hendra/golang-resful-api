@@ -1,6 +1,6 @@
 package util
 
-// INotifier defines the contract for sending notifications.
-type INotifier interface {
+// Notifier defines the contract for sending notifications.
+type Notifier interface {
 	SendLoginNotification(to string) error
 }

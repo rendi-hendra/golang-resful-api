@@ -12,7 +12,7 @@ type TokenUtil struct {
 	SecretKey string
 }
 
-func NewTokenUtil(secretKey string) *TokenUtil {
+func NewTokenUtil(secretKey string) TokenManager {
 	return &TokenUtil{
 		SecretKey: secretKey,
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func NewAuth(log *logrus.Logger, tokenUtil *util.TokenUtil) fiber.Handler {
+func NewAuth(log *logrus.Logger, tokenUtil util.TokenManager) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		header := ctx.Get("Authorization")
 		token, err := ExtractToken(header)
