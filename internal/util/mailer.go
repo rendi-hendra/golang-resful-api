@@ -29,6 +29,14 @@ func (m *Mailer) SendLoginNotification(to string) error {
 	msg := []byte(subject + "\n" + body)
 
 	addr := fmt.Sprintf("%s:%s", host, port)
+	simulation := m.Config.GetBool("mail.simulation")
+
+	if simulation {
+		m.Log.Infof("[SIMULATION] Email sent to: %s", to)
+		m.Log.Infof("[SIMULATION] Subject: %s", subject)
+		m.Log.Infof("[SIMULATION] Body: %s", body)
+		return nil
+	}
 
 	// Mailpit doesn't require authentication by default on port 1025
 	err := smtp.SendMail(addr, nil, from, []string{to}, msg)
