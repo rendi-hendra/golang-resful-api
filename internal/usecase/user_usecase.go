@@ -13,18 +13,19 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+
 )
 
 type UserUseCase struct {
 	DB             *gorm.DB
 	Log            *logrus.Logger
 	Validate       *validator.Validate
-	UserRepository *repository.UserRepository
+	UserRepository repository.IUserRepository
 	TokenUtil      *util.TokenUtil
-	Mailer         *util.Mailer
+	Mailer         util.INotifier
 }
 
-func NewUserUseCase(db *gorm.DB, logger *logrus.Logger, validate *validator.Validate, userRepository *repository.UserRepository, tokenUtil *util.TokenUtil, mailer *util.Mailer) *UserUseCase {
+func NewUserUseCase(db *gorm.DB, logger *logrus.Logger, validate *validator.Validate, userRepository repository.IUserRepository, tokenUtil *util.TokenUtil, mailer util.INotifier) *UserUseCase {
 	return &UserUseCase{
 		DB:             db,
 		Log:            logger,
