@@ -1,0 +1,9 @@
+buatkan issue.md yang berisi perencanaan untuk nanti di implementasikan oleh junior programer atau ai model yang lebih murah.
+
+Isi dari planning nya adalah sebagai berikut:
+Buatkan unit test untuk semua API yang tersedia
+simpan di folder test, menggunakan go test
+setiap skenario, hapus datanya terlebih dahulu agar konsisten
+buatkan skenario test per API selengkap mungkin
+
+Jangan buatkan terlalu detail instruksi unit testnya. Buatkan saja skenario apa yang harus di test, biarkan nanti yang mengimplementasikan detail skenario nya adalah junior programer atau ai model yang lebih murah.
