@@ -29,8 +29,11 @@ func Bootstrap(config *BootstapConfig) {
 	// token
 	tokenUtil := util.NewTokenUtil("rahasia")
 
+	// mailer
+	mailer := util.NewMailer(config.Config, config.Log)
+
 	// setup usecase
-	userUseCase := usecase.NewUserUseCase(config.DB, config.Log, config.Validate, userRepository, tokenUtil)
+	userUseCase := usecase.NewUserUseCase(config.DB, config.Log, config.Validate, userRepository, tokenUtil, mailer)
 
 	// setup controller
 	userController := http.NewUserController(userUseCase, config.Log)

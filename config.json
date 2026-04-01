@@ -20,5 +20,9 @@
       "max": 100,
       "lifetime": 300
     }
+  },
+  "mail": {
+    "host": "localhost",
+    "port": 1025
   }
 }
